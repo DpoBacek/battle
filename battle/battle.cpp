@@ -3,11 +3,13 @@
 #include <cstring>
 #include <iostream>
 #include <locale.h>
+#include <random>
 #include <string>
 #include <time.h>
 
 using namespace std;
 
+int random(int min, int max);
 
 class enemy {
 private:
@@ -29,8 +31,7 @@ private:
 	string name;
 	int money;
 	int hp_potion = 0;
-	int	armor;
-	int strength_armor;
+	int strength_armor = 0;
 public:
 	bool is_alive = true;
 	player(int hp, int damade, int money, string name) {
@@ -74,45 +75,49 @@ public:
 			<< "Здоровье: " << hp << endl
 			<< "Урон: " << damage_close << endl
 			<< "Баланс: " << money << endl
-			<< "Имя: " << name << endl << endl;
+			<< "Имя: " << name << endl
+			<< "Состояние брони: " << strength_armor << "%" << endl << endl;
+
 
 	}
 	void guild() {
-		//srand(time(NULL));
-		int r_damage = 5 + rand() % 25;
-		int r_pay = 40 + rand() % 100;
-		int r_chanse = 1 + rand() % 100;
-		int r_event = 1 + rand() % 1;
+		int r_event = random(1, 100);
+		int r_damage = random(5, 25);
+		int r_chance = random(1, 100);
+		int r_pay = random(40, 100);
 
 		switch (r_event) {
-		case 81: cout << "Идя на задание вы нашли потеренный кошелёк, вы искали хозяина этого кошелька полчаса, но так и не нашил и решили забрать его себе.\nВы получаете 100 монет." << endl; money += 100; break;
+		case 81: cout << "Идя на задание вы нашли потеренный кошелёк, вы искали хозяина этого кошелька полчаса,\nно так и не нашил и решили забрать его себе.\nВы получаете 100 монет." << endl; money += 100; break;
 		case 87: cout << "Когда вы шли на задание из травы выпрыгивает змея и кусает вас.\nВы теряете 10 hp." << endl; hp -= 10; break;
-		case 1:  cout << "Когда вы шли на задание в вас влетает на сверхзвуковой кабочок.\nВы теряете " << (hp - 1) << " hp." << endl; hp = hp - (hp - 1); break;
+		case 1:  cout << "Когда вы шли на задание в вас влетает на сверхзвуковой кабочок.\nВы теряете " << (hp - 1) << " hp." << endl; hp -= (hp - 1); break;
 		default:break;
 		}
 
-
 		cout << "Взяв задание на " << r_pay << ".";
-		if (r_chanse <= 20) {
+		if (r_chance <= 20) {
 			cout << " Вы выполнели его без получения урона. " << endl;
 			money += r_pay;
 		}
-		else if (r_chanse > 20 && r_chanse < 90) {
+		else if (r_chance > 20 && r_chance < 90) {
 			cout << "Вы выполнели его, но всё прошло не гладко и вы получили " << r_damage << " урона." << endl;
 			money += r_pay;
-			hp -= r_damage;
+			if (strength_armor > 0) strength_armor -= r_damage;
+			else hp -= r_damage;
 		}
-		else if (r_chanse >= 90) {
+		else if (r_chance >= 90) {
 			cout << "Вы проваливаете задание получив " << r_damage * 2 << " урона." << endl;
-			hp -= r_damage * 2;
+			if (strength_armor > 0) strength_armor -= r_damage * 2;
+			else hp -= r_damage * 2;
 		}
 		if (hp < 0) is_alive = false;
+		if (strength_armor < 0) strength_armor += abs(strength_armor);
 
 
 	}
 	void shop() {
+		cout << "Справочный материал для магазина нажав на:" << endl << "y -Вы можете купить зелий за " << endl << "n - Вы можите купить броню" << endl;
 		cout << "Вы можете купить зелье возтановления за 100 монет или купить броню." << endl
-			<< "Хотите купить? Нажмите 'y' если хотите купить зелье и 'n' если броню " << endl;
+			<< "Хотите купить? \nНажмите 'y' если хотите купить зелье и 'n' если броню, чтобы выйти нажмите 'e' для выхода " << endl;
 		int userInput_shop = _getch();
 		int number;
 		if (userInput_shop == 121) {
@@ -126,25 +131,31 @@ public:
 		}
 		else if (userInput_shop == 110) {
 			if (money > 500) {
-				money -= 500;
-				hp_potion += (1);
-				cout << "Вы купиле зелье теперь у вас " << hp_potion << " зелий и " << money << " монет." << endl;
+				if (strength_armor >= 100) cout << "Ваша броня в идеальном состоянии.";
+				else {
+					strength_armor += (100);
+					money -= 500;
+					cout << "Вы купиле броню, у которой  " << strength_armor << " прочность и " << money << " монет." << endl;
+				}
 			}
 			else cout << "Недостаточно средств.";
 		}
-
-		else cout << "adaasd";
+		cout << "Вы покидаете магазин.";
 	};
 };
-
-
+int random(int min, int max) {
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<> random_num(min, max);
+	return random_num(gen);
+}
 
 int main() {
 	setlocale(LC_ALL, "RU");
 
-	player ivan(100, 10, 100, "Ivan");
+	player ivan(100, 10, 10000, "Ivan"); // ввод данных о персонажа
 	enemy pav("Pavel", 100);
-	cout << "Справочный материал нажав на:" << endl << "s - Вы отобразите характеристика " << endl << "t - Вы за 100 монет получите добавку к урону " << endl << "g - Вы сходите в гильдию и попытаетесь выполнить их задание " << endl << "f - Вы можете сходить в магазин купить зелье" << endl;
+	cout << "Справочный материал нажав на:" << endl << "s - Вы отобразите характеристика " << endl << "t - Вы за 100 монет получите добавку к урону " << endl << "g - Вы сходите в гильдию и попытаетесь выполнить их задание " << endl << "m - Вы можете сходить в магазин купить зелье" << endl;
 	while (ivan.is_alive) {
 		int userInput = _getch();
 		switch (userInput) {
@@ -153,11 +164,10 @@ int main() {
 		case 115:ivan.show(); break;
 		case 116:ivan.training(); break;
 		case 103:ivan.guild(); break;
-		case 102:ivan.shop(); break;
+		case 109:ivan.shop(); break;
 		default:cout << "Введено недопустимое действие!" << endl;
 		}
 	}
 
 	cout << endl << "Вы мертвы...";
-
 }
