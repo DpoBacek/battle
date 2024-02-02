@@ -12,7 +12,7 @@ using namespace std;
 static int random(int min, int max);
 class Player;
 class Enemy;
-void fight(int player_act, int enemy_act, Enemy enemy, Player user);
+void fight(int player_act, int enemy_act, Enemy& enemy);
 Enemy r_ememy();
 Player init();
 
@@ -25,12 +25,16 @@ private:
 	string name;
 	int strength_armor;
 public:
-	int is_alive = true;
+	bool is_alive = true;
 	friend class Player;
-	friend void fight(int player_act, int enemy_act, Enemy enemy, Player user);
+	friend void fight(int player_act, int enemy_act, Enemy& enemy);
 	Enemy() {}
 	Enemy(int hp, int damage, int strength_armor, string name) {
 		set_info(hp, damage, strength_armor, name);
+	}
+	void set_info(int hp, bool is_alive) {
+		this->hp = hp;
+		this->is_alive = is_alive;
 	}
 	void show() {
 		cout << "У " << name << " " << hp << "hp" << " и его урон составляет " << damage << " едениц." << endl;
@@ -55,12 +59,16 @@ private:
 	int strength_armor = 0;
 public:
 	friend class Enemy;
-	friend void fight(int player_act, int enemy_act, Enemy enemy, Player user);
+	friend void fight(int player_act, int enemy_act, Enemy& enemy);
 	int total_score = 0;
 	int max_total_score = random(1300, 2000);
 	bool is_alive = true;
 	Player(string class_hero, int hp, int damage, int money, int strength_armor, string hero_name) {
 		set_info(class_hero, hp, damage, money, strength_armor, hero_name);
+	}
+	void set_info(int hp, bool is_alive) {
+		this->hp = hp;
+		this->is_alive = is_alive;
 	}
 	void set_info(string class_hero, int hp, int damage, int money, int strength_armor, string hero_name) {
 		this->damage_close = damage;
@@ -121,7 +129,7 @@ public:
 			else hp -= r_damage * 2;
 			total_score += random(0, 10);
 		}
-		if (hp < 0) is_alive = false;
+		if (hp <= 0) is_alive = false;
 
 
 
@@ -169,7 +177,7 @@ public:
 		}
 		else cout << "У вас нет зелий.";
 	}
-	void arena(Player user) {
+	void arena() {
 		Enemy enemy = r_ememy();
 		int p = 0;
 		int r_damage_a = random(5, 25);
@@ -177,18 +185,17 @@ public:
 		cout << "Ваши действия?" << endl << "a - Нанести урон врагу" << endl << "s - Спрятаться за щитом" << endl << "h - Использовать зелье" << endl << "q - Попытаться сбежать" << endl << endl;
 		enemy.show();
 
-		while (enemy.is_alive <= 5) { // if (enemy.hp < 0) return;
+		while (enemy.is_alive) { // if (enemy.hp < 0) return;
+			if (is_alive == false) return;
 			cout << endl << "Что вы предпримите? ";
 			int userInput_arena = _getch();
 			cout << endl;
 			switch (userInput_arena) {
-			case 97: fight(0, damage(enemy), enemy, user); break; // атака по врагу 
-			case 104:fight(2, damage(enemy), enemy, user); ; break; // лечение 
-			case 115:fight(1, damage(enemy), enemy, user); break;
+			case 97: fight(0, damage(enemy), enemy); break; // атака по врагу 
+			case 104:fight(2, damage(enemy), enemy); ; break; // лечение 
+			case 115:fight(1, damage(enemy), enemy); break;
 			case 113: cout << "Вы смогли сбежать с арены, но всё прошло не так гладко...\nВы получили " << r_damage_a << " урона."; hp -= r_damage_a; return;
-
 			}
-
 		}
 		total_score += random(50, 130);
 		cout << "Вы покинули арену." << endl << endl;
@@ -202,6 +209,40 @@ public:
 	}
 	int shield() {
 		return 1;
+	}
+	void fight(int player_act, int enemy_act, Enemy& enemy) {
+		if (player_act == 0 && enemy_act == 0) {
+			if (enemy.hp <= damage_close) {
+				enemy.hp = 0;
+				cout << "Вы выйграли этот бой. " << endl;
+				enemy.is_alive = false;
+				enemy.set_info(enemy.hp, enemy.is_alive);
+				return;
+			}
+			else if (enemy.hp > damage_close) {
+				enemy.hp -= damage_close;
+
+				cout << "Вы нанесли " << damage_close << " урона врагу, у врага остольсь " << enemy.hp << " hp." << endl;
+			}
+			if (hp <= enemy.damage) {
+				hp = 0;
+				cout << "Вы проиграли этот бой. " << endl;
+				is_alive = false;
+				set_info(hp, is_alive);
+				return;
+			}
+			else if (hp > enemy.damage) {
+				hp -= damage_close;
+				cout << "Вы получили " << enemy.damage << " урона от " << enemy.name << ", у вас осталось " << hp << " hp." << endl;
+			}
+
+		}
+		if (player_act == 1 && enemy_act == 0) { cout << "Вы успешно парируете удар щитом"; }
+		if (player_act == 0 && enemy_act == 1) { cout << "Вы попытались ударить но ваш противние парировал удар шитом. "; }
+		if (player_act == 1 && enemy_act == 1) { cout << "Вы пробуете защититься щитом ... как и ваш противник."; }
+		if (player_act == 2) { hp -= enemy.damage; cout << "Противник замечает что вы пытаетесь отхалиться, вы получили " << enemy.damage << " урона от " << enemy.name << ", у вас осталось " << hp << " hp." << endl; }
+		set_info(hp, is_alive);
+		enemy.set_info(enemy.hp, enemy.is_alive);
 	}
 };
 
@@ -226,7 +267,7 @@ Player init() {
 	while (i <= 3) {
 		int userInput_class = _getch();
 		i++;
-		if (userInput_class == 97) { user.set_info("Assissin", 500, 20, 100, 0, hero_name); system("cls"); cout << "Вы выбрали класс Assissin" << endl << endl; break; }
+		if (userInput_class == 97) { user.set_info("Assissin", 50, 20, 100, 0, hero_name); system("cls"); cout << "Вы выбрали класс Assissin" << endl << endl; break; }
 		else if (userInput_class == 119) { user.set_info("Warrior", 100, 12, 100, 0, hero_name); system("cls"); cout << "Вы выбрали класс Warrior" << endl << endl; break; }
 		else if (userInput_class == 112) { user.set_info("Paladin", 80, 10, 100, 100, hero_name); system("cls"); cout << "Вы выбрали класс Paladin" << endl << endl; break; }
 		else if (userInput_class == 103) { user.set_info("God", 10000000, 100, 10000000, 100, hero_name); system("cls"); cout << "Вы выбрали класс God" << endl << endl; break; }
@@ -252,22 +293,6 @@ Enemy r_ememy() {
 	}
 	return enemy;
 }
-void fight(int player_act, int enemy_act, Enemy enemy, Player user) {
-	if (player_act == 0 && enemy_act == 0) {
-		if (enemy.hp <= user.damage_close) { enemy.hp -= user.damage_close; cout << "Вы выйграли этот бой. " << enemy.hp << endl; return; }
-		else if (enemy.hp > user.damage_close) {
-			enemy.hp -= user.damage_close;
-			cout << "Вы нанесли " << user.damage_close << " урона врагу, у врага остольсь " << enemy.hp << " hp." << endl;
-		}
-		user.hp -= enemy.damage; cout << "Вы получили " << enemy.damage << " урона от " << enemy.name << ", у вас осталось " << user.hp << " hp." << endl;
-	}
-	if (player_act == 1 && enemy_act == 0) { cout << "Вы успешно парируете удар щитом"; }
-	if (player_act == 0 && enemy_act == 1) { cout << "Вы попытались ударить но ваш противние парировал удар шитом. "; }
-	if (player_act == 1 && enemy_act == 1) { cout << "Вы пробуете защититься щитом ... как и ваш противник."; }
-	if (player_act == 2) { user.hp -= enemy.damage; cout << "Противник замечает что вы пытаетесь отхалиться, вы получили " << enemy.damage << " урона от " << enemy.name << ", у вас осталось " << user.hp << " hp." << endl; }
-	if (user.hp < 0) return;
-
-}
 
 
 
@@ -276,7 +301,6 @@ void fight(int player_act, int enemy_act, Enemy enemy, Player user) {
 int main() {
 	int k = 0;
 	setlocale(LC_ALL, "RU");
-	cout << "Противник замечает что вы пытаетесь отхалиться, вы получили  10" << " урона от  a,sd,as" << ", у вас осталось  10" << " hp." << endl;
 	Player user = init();
 	Enemy enemy = r_ememy();
 
@@ -290,7 +314,7 @@ int main() {
 		case 103:user.guild(); break;
 		case 109:user.shop(); break;
 		case 99:user.clear(); break;
-		case 97:user.arena(user); break;
+		case 97:user.arena(); break;
 		default:cout << "Введено недопустимое действие!" << endl; break;
 		}
 		if (user.total_score >= user.max_total_score && k == 0) k++;
@@ -313,3 +337,4 @@ int main() {
 
 // Щит всем! !!!!реализация!!!!
 // рандомизация однотипного текста
+// не наноситься урон
