@@ -104,6 +104,7 @@ public:
 			<< "Урон: " << (damage_close * sword_damage) << endl
 			<< "Баланс: " << money << endl
 			<< "Имя: " << name << endl
+			<< "Кол-во зелий: " << hp_potion << endl
 			<< "Состояние брони: " << strength_armor << "%" << endl << endl;
 
 
@@ -111,9 +112,9 @@ public:
 	// Место, где можно раздобыть золото 
 	void guild() {
 		int r_event = random(1, 100);
-		int r_damage = random(5, 25);
+		int r_damage = random(5, 20);
 		int r_chance = random(1, 100);
-		int r_pay = random(40, 100);
+		int r_pay = random(60, 150);
 
 		switch (r_event) {
 		case 81: cout << endl << "\tИдя на задание вы нашли потеренный кошелёк, вы искали хозяина этого кошелька полчаса,\nно так и не нашил и решили забрать его себе.\n\t\tВы получаете 100 монет." << endl << endl; money += 100; break;
@@ -205,7 +206,7 @@ public:
 		system("cls");
 		cout << "Справочный материал нажав на:" << endl
 			<< "s - Вы отобразите характеристика " << endl
-			<< "t - Вы за 100 монет получите добавку к урону " << endl
+			<< "t - Вы за 75 монет получите добавку к урону " << endl
 			<< "g - Вы сходите в гильдию и попытаетесь выполнить их задание " << endl
 			<< "m - Вы можете сходить в магазин купить зелье" << endl
 			<< "a - Вы можете сходить на арена " << endl
@@ -216,11 +217,16 @@ public:
 	// Лечение
 	void healing() {
 		if (hp_potion >= 1) {
-			if (hp == 100) { cout << name << " здоров." << endl << endl; }
+			if (hp >= 100) { cout << name << " здоров." << endl << endl; }
+			else if ((hp + 25) >= 100) {
+				hp = 100;
+				hp_potion -= 1;
+				cout << "Вы лечите себя по полной, теперь у вас " << hp << " hp." << endl;
+			}
 			else {
 				hp += 25;
 				hp_potion -= 1;
-				cout << "Вы лечите себя на 25 hp, теперь у вас " << hp << "." << endl;
+				cout << "Вы лечите себя на 25 hp, теперь у вас " << hp << " hp." << endl;
 			}
 		}
 		else cout << "У вас нет зелий.";
@@ -347,6 +353,39 @@ public:
 		set_info(hp, is_alive);
 		enemy.set_info(enemy.hp, enemy.is_alive);
 	}
+
+	void finish_stage() {
+		Enemy enemy;
+		enemy.set_info(100, 13, 200, "Страж-Каменщик");
+
+
+		cout << "Вы встречаете печального известного " << enemy.name << endl;
+		cout << "Ваши действия?" << endl
+			<< "a - Нанести урон врагу" << endl
+			<< "s - Спрятаться за щитом" << endl
+			<< "h - Использовать зелье" << endl << endl;
+		enemy.show();
+
+		while (enemy.is_alive) {
+			if (is_alive == false) return;
+			cout << endl << "Что вы предпримите? ";
+			int userInput_arena = _getch();
+			cout << endl;
+			switch (userInput_arena) {
+			case 97: fight(0, damage(enemy), enemy); break; // Атака по боссу 
+			case 115:fight(1, damage(enemy), enemy); break; // Использование щит
+			case 104:if (hp_potion >= 1) fight(2, damage(enemy), enemy); else cout << "У вас нет зелий." << endl; break; // Лечение 
+			}
+		}
+
+		total_score += random(100, 400);
+		int reward = random(100, 350);
+		money += reward;
+		damage_close = damage_close + 20;
+		cout << "Обновление в ваших характеристиках: " << endl
+			<< "Урон: " << ((damage_close - 20) * sword_damage) << " -> " << (damage_close * sword_damage) << endl;
+	}
+
 };
 
 
@@ -376,13 +415,13 @@ Player init() {
 		int userInput_class = _getch();
 		i++;
 		if (userInput_class == 97) {
-			user.set_info("Assissin", 50, 20, 1000, 0, hero_name);
+			user.set_info("Assissin", 50, 20, 100, 0, hero_name);
 			system("cls");
 			cout << "Вы выбрали класс Assissin" << endl << endl;
 			break;
 		}
 		else if (userInput_class == 119) {
-			user.set_info("Warrior", 100, 12, 100, 0, hero_name);
+			user.set_info("Warrior", 100, 15, 100, 0, hero_name);
 			system("cls");
 			cout << "Вы выбрали класс Warrior" << endl << endl;
 			break;
@@ -394,7 +433,7 @@ Player init() {
 			break;
 		}
 		else if (userInput_class == 103) {
-			user.set_info("God", 10000000, 100, 10000000, 100, hero_name);
+			user.set_info("God", 10000000, 100, 10000000, 1000, hero_name);
 			system("cls");
 			cout << "Вы выбрали класс God" << endl << endl;
 			break;
@@ -446,7 +485,7 @@ int main() {
 
 	cout << "Справочный материал нажав на:" << endl
 		<< "s - Вы отобразите характеристика " << endl
-		<< "t - Вы за 100 монет получите добавку к урону " << endl
+		<< "t - Вы за 75 монет получите добавку к урону " << endl
 		<< "g - Вы сходите в гильдию и попытаетесь выполнить их задание " << endl
 		<< "m - Вы можете сходить в магазин купить зелье" << endl
 		<< "a - Вы можете сходить на арена " << endl
@@ -472,9 +511,9 @@ int main() {
 		switch (k) {
 		case 1:cout << endl << endl << "------------------------------------------" << endl << "Знатные люди говорят о вас." << endl << "------------------------------------------" << endl << endl << endl; k++; break;
 		case 2:cout << endl << endl << "------------------------------------------" << endl << "На вас открыта охота." << endl << "------------------------------------------" << endl << endl << endl; k++;   break;
-			//case 3: finish_stage; break;
+		case 3:user.finish_stage(); break;
 		}
-
+		cout << endl << "счёт: " << user.total_score << endl;
 	}
 	cout << endl << "Вы мертвы...";
 
@@ -487,4 +526,6 @@ int main() {
 // -> Открываеться босс 
 
 // рандомизация однотипного текста
+
+
 

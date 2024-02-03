@@ -1,6 +1,6 @@
 ﻿  battle.cpp
-E:\Program Files (x86)\Project\battle\battle\battle.cpp(280,46): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
-E:\Program Files (x86)\Project\battle\battle\battle.cpp(285,64): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
-E:\Program Files (x86)\Project\battle\battle\battle.cpp(289,58): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
-E:\Program Files (x86)\Project\battle\battle\battle.cpp(290,64): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
+E:\Program Files (x86)\Project\battle\battle\battle.cpp(286,46): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
+E:\Program Files (x86)\Project\battle\battle\battle.cpp(291,64): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
+E:\Program Files (x86)\Project\battle\battle\battle.cpp(295,58): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
+E:\Program Files (x86)\Project\battle\battle\battle.cpp(296,64): warning C4244: -=: преобразование "double" в "int", возможна потеря данных
   battle.vcxproj -> E:\Program Files (x86)\Project\battle\x64\Debug\battle.exe
