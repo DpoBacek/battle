@@ -1,0 +1,8 @@
+﻿  battle.cpp
+E:\Program Files (x86)\Project\battle\battle\battle.cpp(168,21): warning C4244: +=: преобразование "double" в "int", возможна потеря данных
+  Создание кода
+  14 of 178 functions ( 7.9%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    2 functions had inline decision re-evaluated but remain unchanged
+  Создание кода завершено
+  battle.vcxproj -> E:\Program Files (x86)\Project\battle\x64\Release\battle.exe

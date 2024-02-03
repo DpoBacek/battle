@@ -53,19 +53,23 @@ private:
 	string class_hero;
 	int hp;
 	int damage_close;
+	int sword_damage = 1;
+	int counterattack;
 	string name;
 	int money;
 	int hp_potion = 0;
 	int strength_armor = 0;
 public:
-	friend class Enemy;
-	friend void fight(int player_act, int enemy_act, Enemy& enemy);
 	int total_score = 0;
 	int max_total_score = random(1300, 2000);
 	bool is_alive = true;
+	friend class Enemy;
+	friend void fight(int player_act, int enemy_act, Enemy& enemy);
+
 	Player(string class_hero, int hp, int damage, int money, int strength_armor, string hero_name) {
 		set_info(class_hero, hp, damage, money, strength_armor, hero_name);
 	}
+
 	void set_info(int hp, bool is_alive) {
 		this->hp = hp;
 		this->is_alive = is_alive;
@@ -79,12 +83,12 @@ public:
 		name = hero_name;
 	}
 	void training() {
-		money -= 100;
-		damage_close += 10;
-		total_score += random(20, 50);
+		money -= 75;
+		damage_close += 4;
+		total_score += random(10, 30);
 		cout << "Обновление в ваших характеристиках: " << endl
-			<< "Урон: " << (damage_close - 10) << " -> " << damage_close << endl
-			<< "Баланс: " << (money + 100) << " -> " << money << endl << endl;
+			<< "Урон: " << (damage_close - 4) << " -> " << damage_close << endl
+			<< "Баланс: " << (money + 75) << " -> " << money << endl << endl;
 	}
 	void show() {
 		cout << "Характеристики: " << endl
@@ -135,7 +139,7 @@ public:
 
 	}
 	void shop() {
-		cout << endl << "Справочный материал для магазина нажав на:" << endl << "y - Вы можете купить зелий за 100 монет " << endl << "n - Вы можите купить броню за 500 монет" << endl << "На любую другую кнопку чтобы выйти" << endl
+		cout << endl << "Справочный материал для магазина нажав на:" << endl << "y - Вы можете купить зелий за 100 монет " << endl << "n - Вы можите купить броню за 500 монет" << endl << "s - Вы можите купить или улучшить меч за 150 монет" << endl << "На любую другую кнопку чтобы выйти" << endl
 			<< "Что хотите купить?" << endl << endl;
 		int userInput_shop = _getch();
 		int number;
@@ -159,6 +163,16 @@ public:
 			}
 			else cout << "Недостаточно средств." << endl;
 		}
+		else if (userInput_shop == 115) {
+			if (money > 150) {
+				sword_damage += 0.2;
+				money -= 150;
+				if (sword_damage == 1) cout << "Вы успешно купили меч ваш урон состовляет: " << (damage_close * sword_damage);
+				cout << "Вы купиле броню, у которой  " << strength_armor << " прочность и " << money << " монет." << endl;
+			}
+			else cout << "Недостаточно средств." << endl;
+
+		}
 		cout << "Вы покидаете магазин." << endl << endl;
 	};
 	void clear() {
@@ -177,29 +191,6 @@ public:
 		}
 		else cout << "У вас нет зелий.";
 	}
-	void arena() {
-		Enemy enemy = r_ememy();
-		int p = 0;
-		int r_damage_a = random(5, 25);
-		cout << "Вы попадаете на арену и вашим врагом стоноваться " << enemy.name << endl;
-		cout << "Ваши действия?" << endl << "a - Нанести урон врагу" << endl << "s - Спрятаться за щитом" << endl << "h - Использовать зелье" << endl << "q - Попытаться сбежать" << endl << endl;
-		enemy.show();
-
-		while (enemy.is_alive) { // if (enemy.hp < 0) return;
-			if (is_alive == false) return;
-			cout << endl << "Что вы предпримите? ";
-			int userInput_arena = _getch();
-			cout << endl;
-			switch (userInput_arena) {
-			case 97: fight(0, damage(enemy), enemy); break; // атака по врагу 
-			case 104:fight(2, damage(enemy), enemy); ; break; // лечение 
-			case 115:fight(1, damage(enemy), enemy); break;
-			case 113: cout << "Вы смогли сбежать с арены, но всё прошло не так гладко...\nВы получили " << r_damage_a << " урона."; hp -= r_damage_a; return;
-			}
-		}
-		total_score += random(50, 130);
-		cout << "Вы покинули арену." << endl << endl;
-	};
 	int damage(Enemy enemy) { // урона по игроку (0 - нанесение урона, 1 - ипользование щита)
 		if (random(1, 4) == 4) { return 1; }
 		else { return 0; }
@@ -210,21 +201,42 @@ public:
 	int shield() {
 		return 1;
 	}
+	void arena() {
+		Enemy enemy = r_ememy();
+		int r_damage_a = random(5, 25);
+		cout << "Вы попадаете на арену и вашим врагом стоноваться " << enemy.name << endl;
+		cout << "Ваши действия?" << endl << "a - Нанести урон врагу" << endl << "s - Спрятаться за щитом" << endl << "h - Использовать зелье" << endl << "q - Попытаться сбежать" << endl << endl;
+		enemy.show();
+
+		while (enemy.is_alive) {
+			if (is_alive == false) return;
+			cout << endl << "Что вы предпримите? ";
+			int userInput_arena = _getch();
+			cout << endl;
+			switch (userInput_arena) {
+			case 97: fight(0, damage(enemy), enemy); break; // Атака по врагу 
+			case 104:fight(2, damage(enemy), enemy); ; break; // Лечение 
+			case 115:fight(1, damage(enemy), enemy); break; // Использование щит
+			case 113: cout << "Вы смогли сбежать с арены, но всё прошло не так гладко...\nВы получили " << r_damage_a << " урона."; hp -= r_damage_a; return;
+			}
+		}
+		total_score += random(50, 130);
+		cout << "Вы покинули арену." << endl << endl;
+	};
 	void fight(int player_act, int enemy_act, Enemy& enemy) {
 		if (player_act == 0 && enemy_act == 0) {
-			if (enemy.hp <= damage_close) {
+			if (enemy.hp <= damage_close) { // Удар по противнику 
 				enemy.hp = 0;
-				cout << "Вы выйграли этот бой. " << endl;
+				cout << "Вы выйграли этот бой. " << endl << endl;
 				enemy.is_alive = false;
 				enemy.set_info(enemy.hp, enemy.is_alive);
 				return;
 			}
 			else if (enemy.hp > damage_close) {
 				enemy.hp -= damage_close;
-
 				cout << "Вы нанесли " << damage_close << " урона врагу, у врага остольсь " << enemy.hp << " hp." << endl;
 			}
-			if (hp <= enemy.damage) {
+			if (hp <= enemy.damage) { // Удар по играку
 				hp = 0;
 				cout << "Вы проиграли этот бой. " << endl;
 				is_alive = false;
@@ -235,10 +247,9 @@ public:
 				hp -= damage_close;
 				cout << "Вы получили " << enemy.damage << " урона от " << enemy.name << ", у вас осталось " << hp << " hp." << endl;
 			}
-
 		}
 		if (player_act == 1 && enemy_act == 0) { cout << "Вы успешно парируете удар щитом"; }
-		if (player_act == 0 && enemy_act == 1) { cout << "Вы попытались ударить но ваш противние парировал удар шитом. "; }
+		if (player_act == 0 && enemy_act == 1) { cout << "Вы попытались ударить, но ваш противние парировал удар шитом. "; }
 		if (player_act == 1 && enemy_act == 1) { cout << "Вы пробуете защититься щитом ... как и ваш противник."; }
 		if (player_act == 2) { hp -= enemy.damage; cout << "Противник замечает что вы пытаетесь отхалиться, вы получили " << enemy.damage << " урона от " << enemy.name << ", у вас осталось " << hp << " hp." << endl; }
 		set_info(hp, is_alive);
@@ -331,10 +342,10 @@ int main() {
 }
 
 
-// АРЕНА должен рандомить защить-атака (шанс на оглушение) (шанс контр атаки после шита x 1.0 - x 1.3) !!!!! добавить смерть
+// АРЕНА должен рандомить защить-атака				 !!!!!!!!!!(шанс на оглушение) (шанс контр атаки после шита x 1.0 - x 1.3) !!!!!!!!!!
+// 
 // total score (1300, 2000) k =1  = действия  должны влиять на него  как только ~> 1000 мы выводим "Знатные люди говорят о вас."  -> любое действие "На вас открыта охота." ->
 // -> Открываеться босс 
 
-// Щит всем! !!!!реализация!!!!
 // рандомизация однотипного текста
 // не наноситься урон
