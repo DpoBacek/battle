@@ -9,7 +9,8 @@
 #include <time.h>
 
 using namespace std;
-static int random(int min, int max);
+
+int random(int min, int max);
 class Player;
 class Enemy;
 void fight(int player_act, int enemy_act, Enemy& enemy);
@@ -132,13 +133,15 @@ public:
 		else if (r_chance > 20 && r_chance < 90) {
 			cout << "Вы выполнели его, но всё прошло не гладко и вы получили " << r_damage << " урона." << endl;
 			money += r_pay;
-			if (strength_armor > 0) strength_armor -= r_damage;
+			if (strength_armor >= r_damage) strength_armor -= r_damage;
+			else if (strength_armor < r_damage) strength_armor = 0;
 			else hp -= r_damage;
 			total_score += random(20, 40);
 		}
 		else if (r_chance >= 90) {
 			cout << "Вы проваливаете задание получив " << r_damage * 2 << " урона." << endl;
-			if (strength_armor > 0) strength_armor -= r_damage * 2;
+			if (strength_armor >= (r_damage * 2)) strength_armor -= r_damage * 2;
+			else if (strength_armor < (r_damage * 2)) strength_armor = 0;
 			else hp -= r_damage * 2;
 			total_score += random(0, 10);
 		}
@@ -389,11 +392,7 @@ public:
 };
 
 
-
-
-
-
-static int random(int min, int max) {
+int random(int min, int max) {
 	random_device rd;
 	mt19937 gen(rd());
 	uniform_int_distribution<> random_num(min, max);
@@ -480,6 +479,7 @@ Enemy r_ememy() {
 int main() {
 	int k = 0;
 	setlocale(LC_ALL, "RU");
+	system("chcp 1251 > null");
 	Player user = init();
 	Enemy enemy = r_ememy();
 
@@ -513,17 +513,12 @@ int main() {
 		case 2:cout << endl << endl << "------------------------------------------" << endl << "На вас открыта охота." << endl << "------------------------------------------" << endl << endl << endl; k++;   break;
 		case 3:user.finish_stage(); break;
 		}
-		cout << endl << "счёт: " << user.total_score << endl;
 	}
 	cout << endl << "Вы мертвы...";
 
 
 }
 
-
-
-// total score (1300, 2000) k =1  = действия  должны влиять на него  как только ~> 1000 мы выводим "Знатные люди говорят о вас."  -> любое действие "На вас открыта охота." ->
-// -> Открываеться босс 
 
 // рандомизация однотипного текста
 
