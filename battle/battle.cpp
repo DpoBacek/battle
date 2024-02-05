@@ -356,7 +356,7 @@ public:
 
 	void finish_stage() {
 		Enemy enemy;
-		enemy.set_info(100, 13, 200, "Страж-Каменщик");
+		enemy.set_info(1000, 30, 200, "Червь Абсурда: Аномальный Аннигилятор Астралдименсий");
 
 
 		cout << "Вы встречаете печального известного " << enemy.name << endl;
