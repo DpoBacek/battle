@@ -232,7 +232,7 @@ public:
 				cout << "Вы лечите себя на 25 hp, теперь у вас " << hp << " hp." << endl;
 			}
 		}
-		else cout << "У вас нет зелий.";
+		else cout << "У вас нет зелий." << endl;
 	}
 	// Урон по играку
 	int damage(Enemy enemy) { // урона по игроку (0 - нанесение урона, 1 - ипользование щита)
@@ -261,7 +261,7 @@ public:
 			case 97: fight(0, damage(enemy), enemy); break; // Атака по врагу 
 			case 115:fight(1, damage(enemy), enemy); break; // Использование щит
 			case 104:if (hp_potion >= 1) fight(2, damage(enemy), enemy); else cout << "У вас нет зелий." << endl; break; // Лечение 
-			case 113: cout << "Вы смогли сбежать с арены, но всё прошло не так гладко...\nВы получили " << r_damage_a << " урона."; hp -= r_damage_a; return;
+			case 113: cout << "Вы смогли сбежать с арены, но всё прошло не так гладко...\nВы получили " << r_damage_a << " урона." << endl; hp -= r_damage_a; return;
 			}
 		}
 
@@ -356,7 +356,7 @@ public:
 		set_info(hp, is_alive);
 		enemy.set_info(enemy.hp, enemy.is_alive);
 	}
-
+	// Финальный этап битва с боссом
 	void finish_stage() {
 		Enemy enemy;
 		enemy.set_info(1000, 30, 200, "Червь Абсурда: Аномальный Аннигилятор Астралдименсий");
